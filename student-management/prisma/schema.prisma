@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  student_id            String   @id @default(uuid())
+  name                  String
+  register_number       String   @unique
+  dob                   DateTime
+  gender                String
+  department            String
+  course                String
+  batch                 String
+  year                  String
+  semester              String
+  email                 String   @unique
+  mobile                String
+  accommodation         String
+  cgpa                  Float
+  attendance_percentage Float
+  arrears               Int
+
+  dues             Due[]
+  approvals        Approval[]
+  internalMarks    InternalMark[]
+  semesterResults  SemesterResult[]
+  transactions     Transaction[]
+  timetableEntries TimeTableEntry[]
+}
+
+model Subject {
+  subject_code String @id
+  subject_name String
+  regulation   String
+  semester     Int
+
+  assignments      Assignment[]
+  notes            Note[]
+  internalMarks    InternalMark[]
+  semesterResults  SemesterResult[]
+  timetableEntries TimeTableEntry[]
+}
+
+model Assignment {
+  assignment_id   Int    @id @default(autoincrement())
+  subject_code    String
+  assignment_name String
+  status          String
+  mark            String
+
+  subject Subject @relation(fields: [subject_code], references: [subject_code], onDelete: Cascade)
+}
+
+model InternalMark {
+  internal_mark_id Int    @id @default(autoincrement())
+  student_id       String
+  subject_code     String
+  exam_type        String
+  mark_obtained    String
+
+  student Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+  subject Subject @relation(fields: [subject_code], references: [subject_code], onDelete: Cascade)
+}
+
+model SemesterResult {
+  result_id       Int    @id @default(autoincrement())
+  student_id      String
+  subject_code    String
+  semester_number Int
+  grade           String
+
+  student Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+  subject Subject @relation(fields: [subject_code], references: [subject_code], onDelete: Cascade)
+}
+
+model Circular {
+  circular_id     Int      @id @default(autoincrement())
+  name            String
+  year_applicable String
+  date            DateTime
+  download_link   String
+}
+
+model Note {
+  note_id       Int    @id @default(autoincrement())
+  subject_code  String
+  note_name     String
+  download_link String
+
+  subject Subject @relation(fields: [subject_code], references: [subject_code], onDelete: Cascade)
+}
+
+model Due {
+  due_id         Int    @id @default(autoincrement())
+  student_id     String
+  category       String
+  monthly_pay    Float
+  total_amount   Float
+  paid_amount    Float
+  pending_amount Float
+
+  student Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+}
+
+model Approval {
+  approval_id     Int     @id @default(autoincrement())
+  student_id      String
+  faculty         String
+  approved_status Boolean
+
+  student Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+}
+
+model Transaction {
+  transaction_id   String   @id
+  student_id       String
+  transaction_date DateTime
+  category         String
+  amount           Float
+  method           String
+  receipt_link     String
+
+  student Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+}
+
+model Event {
+  event_id                Int    @id @default(autoincrement())
+  event_name              String
+  date_day                Int
+  date_month_abbr         String
+  date_full               String
+  time                    String
+  location_or_description String
+  registration_url        String
+  speakers                String
+}
+
+model TimeTableEntry {
+  timetable_entry_id Int    @id @default(autoincrement())
+  student_id         String
+  day_of_week        String
+  time_slot          String
+  subject_code       String
+  faculty_name       String
+
+  student Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+  subject Subject @relation(fields: [subject_code], references: [subject_code], onDelete: Cascade)
+}
